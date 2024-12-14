@@ -2,22 +2,46 @@
 import Link from "next/link";
 import React from "react";
 import { useRouter } from "next/navigation";
-import { Axios } from "axios";
+import  axios  from "axios";
+import { useEffect } from "react";
 export default function LoginPage(){
+    const Router=useRouter();
     const [user,setUser]=React.useState({
         email: "",
         password: "",
     })
-    const onLogin=async()=>{}
+    const [buttonDisabled,setButtonDisabled]=React.useState(false);
+    const[loading,setloading]=React.useState(false);
+    const onLogin=async()=>{
+        try{
+            setloading(true);
+            const response=await axios.post("/api/users/login",user);
+            console.log("Logine success");
+            Router.push("/profile");
+        }catch(error:any){
+            console.log("Login failed",error.message);
+        }finally{
+            setloading(false);
+        }
+    }
+    useEffect(()=>{
+        if(user.email.length>0 && user.password.length>0)
+        {
+            setButtonDisabled(false);
+        }else
+        {
+            setButtonDisabled(true);
+        }
+    },[user]);
     return(
         <div className="flex flex-col items-center justify-center min-h-screen py-2">
             <h1>
-                Login
+                {loading ? "Processing" : "Login"}
             </h1>
             <hr />
             <label htmlFor="email">email</label>
             <input
-            className="p-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:border-gray-600"
+            className="p-2 border border-gray-300 text-black rounded-lg mb-4 focus:outline-none focus:border-gray-600"
                 id="email"
                 type="text"
                 value={user.email}
@@ -26,7 +50,7 @@ export default function LoginPage(){
                 />
             <label htmlFor="password">password</label>
             <input
-            className="p-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:border-gray-600"
+            className="p-2 border border-gray-300 text-black rounded-lg mb-4 focus:outline-none focus:border-gray-600"
                 id="password"
                 type="password"
                 value={user.password}
